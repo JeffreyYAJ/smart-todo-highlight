@@ -1,71 +1,65 @@
-# smartTodoHighlight README
+# Smart Todo Highlight
 
-This is the README for your extension "smartTodoHighlight". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that highlights TODO and FIXME comments in your code with priority-based color coding and provides a convenient tree view for navigation.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Priority-Based Highlighting**: Automatically highlights TODO comments with color-coded priorities (p1, p2, p3)
+  - **P3 (High)**: Red background with red border
+  - **P2 (Medium)**: Orange background with orange border
+  - **P1 (Low)**: Yellow background with yellow border
+  - **FIXME**: Blue background with blue border
 
-For example if there is an image subfolder under your extension project workspace:
+- **Tree View (for future versions)**: Displays all TODOs and FIXMEs in the Explorer sidebar for quick navigation
+- **Overview Ruler**: Shows todo locations in the scrollbar for easy scanning
+- **Quick Navigation**: Click any todo in the tree view to jump to its location
+- **Real-Time Updates**: Automatically updates when you switch files or edit code
 
-\!\[feature X\]\(images/feature-x.png\)
+## Usage
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Comment Syntax
+
+Use the following formats in your code comments:
+
+```javascript
+// TODO(p3): High priority task
+// TODO(p2): Medium priority task
+// TODO(p1): Low priority task
+// FIXME: fixes
+```
+
+### Commands
+
+- **Refresh TODO Highlight**: Manually refresh the todo list and decorations
+- **Go to TODO**: Navigate to a specific todo (automatically triggered when clicking in the tree view)
+
+### Tree View (For future versions)
+
+Open the **Smart TODOs** view in the Explorer sidebar to see all todos in the current file, organized by priority.
+
+## Configuration
+
+The extension works with default settings and requires no additional configuration.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- VS Code ^1.106.3
 
-## Extension Settings
+## Installation
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Clone or download this repository
+2. Run `npm install`
+3. Press `F5` to launch the extension in development mode
 
-For example:
+## Development
 
-This extension contributes the following settings:
+### Scripts
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- `npm run compile`: Compile TypeScript to JavaScript
+- `npm run watch`: Watch for changes and recompile automatically
+- `npm run lint`: Run ESLint to check code style
+- `npm test`: Run the test suite
 
-## Known Issues
+## License
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+See CHANGELOG.md for version history and changes.
