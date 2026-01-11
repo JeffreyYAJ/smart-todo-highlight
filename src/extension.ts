@@ -12,21 +12,28 @@ interface TodoItem{
 
 const decaroationTypes = {
 	high: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255, 0, 0, 0.28)',
-		border: '1px solid red',
+		backgroundColor: 'rgba(255, 0, 0, 0.73)',
+		border: '2px solid red',
 		overviewRulerColor:'red',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	}),
 	medium: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255, 128, 0, 0.27)',
-		border: '1px solid orange',
+		backgroundColor: 'rgba(255, 128, 0, 0.71)',
+		border: '2px solid orange',
 		overviewRulerColor:'orange',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	}),
 	low: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255,255,0,0.3)',
-		border: '1px solid yellow',
+		backgroundColor: 'rgba(255, 255, 0, 0.41)',
+		border: '2px solid yellow',
 		overviewRulerColor: 'yellow',
+		overviewRulerLane: vscode.OverviewRulerLane.Right,
+	}),
+
+	fixme: vscode.window.createTextEditorDecorationType({
+		backgroundColor: 'rgba(0, 81, 255, 0.84)',
+		border: '2px solid blue',
+		overviewRulerColor: 'blue',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	})
 }
@@ -75,74 +82,79 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}, null, context.subscriptions);
 
-	function updateDecorations(){
-		if (!activeEditor){
-			return ;
-		}
+		function updateDecorations(){
+        if (!activeEditor){
+            return ;
+        }
 
-		const text = activeEditor.document.getText();
-		const todos = parseTodos(text);
+        const text = activeEditor.document.getText();
+        const todos = parseTodos(text);
 
-		const highPriority: vscode.DecorationOptions[] = [];
-		const mediumPriority: vscode.DecorationOptions[] = [];
-		const lowPOriority: vscode.DecorationOptions[] = [];
+        const highPriority: vscode.DecorationOptions[] = [];
+        const mediumPriority: vscode.DecorationOptions[] = [];
+        const lowPriority: vscode.DecorationOptions[] = [];
+        const fixmeItems: vscode.DecorationOptions[] = [];
 
-		todos.forEach(todo => {
-			const startPosition = activeEditor!.document.positionAt(
-				text.split('\n').slice(0, todo.line).join('\n').length +(todo.line > 0? 1:0)
-			);
-			const endPosition = activeEditor!.document.positionAt(
-				text.split('\n').slice(0, todo.line + 1).join('\n').length
-			);
+        todos.forEach(todo => {
+            const startPosition = activeEditor!.document.positionAt(
+                text.split('\n').slice(0, todo.line).join('\n').length +(todo.line > 0? 1:0)
+            );
+            const endPosition = activeEditor!.document.positionAt(
+                text.split('\n').slice(0, todo.line + 1).join('\n').length
+            );
 
-			const decoration: vscode.DecorationOptions = {
-				range: new vscode.Range(startPosition, endPosition),
-				hoverMessage: `${todo.type} - Priority: ${todo.priority}`
-			};
+            const decoration: vscode.DecorationOptions = {
+                range: new vscode.Range(startPosition, endPosition),
+                hoverMessage: `${todo.type} - Priority: ${todo.priority}`
+            };
 
-			if (todo.priority >= 3 || todo.type === 'FIXME'){
-				highPriority.push(decoration);
+            if (todo.type === 'FIXME'){
+                fixmeItems.push(decoration);
+            } else if (todo.priority === 3) {
+                highPriority.push(decoration);
+            } else if (todo.priority === 2) {
+                mediumPriority.push(decoration);
+            } else {
+                lowPriority.push(decoration);
+            }
+        });
 
-			}else if (todo.priority  === 2) {
-				mediumPriority.push(decoration);
-			}else {
-				lowPOriority.push(decoration);
-			}
-		});
-
-		activeEditor.setDecorations(decaroationTypes.high, highPriority);
-		activeEditor.setDecorations(decaroationTypes.medium, mediumPriority);
-		activeEditor.setDecorations(decaroationTypes.low, lowPOriority);
-	}
+        activeEditor.setDecorations(decaroationTypes.high, highPriority);
+        activeEditor.setDecorations(decaroationTypes.medium, mediumPriority);
+        activeEditor.setDecorations(decaroationTypes.low, lowPriority);
+        activeEditor.setDecorations(decaroationTypes.fixme, fixmeItems);
+    }
 }
 
 function parseTodos(text:string): TodoItem[] {
-	const lines = text.split('\n');
-	const todos: TodoItem[] = [];
+    const lines = text.split('\n');
+    const todos: TodoItem[] = [];
 
-	lines.forEach((line, index) => {
-		const todoRegex = /\/\/\s*(TODO|FIXME)(?:\[(P[1-3])\])?:?\s*(.+)/g;
-		let foundSequence; 
-		while ((foundSequence = todoRegex.exec(line)) !== null) {
-			const type = foundSequence[1].toUpperCase() as 'TODO' | 'FIXME';
-			const priority = foundSequence[2]
-  ? parseInt(foundSequence[2][1])
-  : (type === "FIXME" ? 3 : 1);
+    lines.forEach((line, index) => {
+        const todoRegex = /\/\/\s*(TODO|FIXME)\(P?([1-3])\):\s*(.+)/;
 
-			const text = foundSequence[3] || "";
-			
-			todos.push({
-				text, line:index, priority, type
-			});
-		}
-	});
+		const foundSequence = todoRegex.exec(line);
+        
+        if (foundSequence) {
+            const type = foundSequence[1].toUpperCase() as 'TODO' | 'FIXME';
+            const priority = foundSequence[2]
+                ? parseInt(foundSequence[2])
+                : (type === "FIXME" ? 3 : 1);
 
-	return todos.sort((todoa, todob) =>{
-		if (todob.priority !== todoa.priority){
-			return todob.priority - todoa.priority;
-		}
-		return todoa.line - todob.line;
-	});
+            const text = foundSequence[3] || "";
+            
+            todos.push({
+                text, line:index, priority, type
+            });
+        }
+    });
+
+    return todos.sort((todoa, todob) =>{
+        if (todob.priority !== todoa.priority){
+            return todob.priority - todoa.priority;
+        }
+        return todoa.line - todob.line;
+    });
 }
 
 class TodoTreeItem extends vscode.TreeItem {
