@@ -2,23 +2,36 @@
   "name": "smartTodoHighlight",
   "displayName": "smart-todo-highlight",
   "description": "Highlight TODOs and FIXMEs by priority and aging",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
-    "vscode": "^1.108.1"
+    "vscode": "^1.106.3"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["*"],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "smartTodoHighlight.helloWorld",
-        "title": "Hello World"
+        "command": "todoHighlighter.refresh",
+        "title": "Refresh TODO Highlight"
+      },
+      {
+        "command": "todoHighlighter.goto",
+        "title": "Go to TODO"
       }
-    ]
-  },
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "todoList",
+          "name": "Smart TODOs"
+        }
+      ]
+    }
+  }
+,
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -28,7 +41,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.108.1",
+    "@types/vscode": "^1.106.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "typescript-eslint": "^8.52.0",
