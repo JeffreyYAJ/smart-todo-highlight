@@ -131,25 +131,34 @@ function parseTodos(text:string): TodoItem[] {
     const todos: TodoItem[] = [];
 
     lines.forEach((line, index) => {
-        const todoRegex = /\/\/\s*(TODO|FIXME)\(P?([1-3])\):\s*(.+)/;
-
-		const foundSequence = todoRegex.exec(line);
+        const todoRegex = /\/\/\s*(TODO)\(P?([1-3])\):\s*(.+)/;
+        const fixmeRegex = /\/\/\s*(FIXME):\s*(.+)/;
+        
+        let foundSequence = todoRegex.exec(line);
         
         if (foundSequence) {
             const type = foundSequence[1].toUpperCase() as 'TODO' | 'FIXME';
-            const priority = foundSequence[2]
-                ? parseInt(foundSequence[2])
-                : (type === "FIXME" ? 3 : 1);
-
+            const priority = parseInt(foundSequence[2]);
             const text = foundSequence[3] || "";
             
             todos.push({
                 text, line:index, priority, type
             });
+        } else {
+            // Vérifier si c'est un FIXME
+            foundSequence = fixmeRegex.exec(line);
+            if (foundSequence) {
+                const type = 'FIXME' as const;
+                const priority = 3; 
+                const text = foundSequence[2] || "";
+                
+                todos.push({
+                    text, line:index, priority, type
+                });
+            }
         }
     });
-
-    return todos.sort((todoa, todob) =>{
+   return todos.sort((todoa, todob) =>{
         if (todob.priority !== todoa.priority){
             return todob.priority - todoa.priority;
         }
