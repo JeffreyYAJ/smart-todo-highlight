@@ -12,26 +12,26 @@ interface TodoItem{
 
 const decaroationTypes = {
 	high: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255, 0, 0, 0.73)',
+		backgroundColor: 'rgba(255, 0, 0, 0.49)',
 		border: '2px solid red',
 		overviewRulerColor:'red',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	}),
 	medium: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255, 128, 0, 0.71)',
+		backgroundColor: 'rgba(255, 128, 0, 0.44)',
 		border: '2px solid orange',
 		overviewRulerColor:'orange',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	}),
 	low: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(255, 255, 0, 0.41)',
+		backgroundColor: 'rgba(255, 255, 0, 0.35)',
 		border: '2px solid yellow',
 		overviewRulerColor: 'yellow',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
 	}),
 
 	fixme: vscode.window.createTextEditorDecorationType({
-		backgroundColor: 'rgba(0, 81, 255, 0.84)',
+		backgroundColor: 'rgba(0, 162, 255, 0.64)',
 		border: '2px solid blue',
 		overviewRulerColor: 'blue',
 		overviewRulerLane: vscode.OverviewRulerLane.Right,
@@ -131,34 +131,40 @@ function parseTodos(text:string): TodoItem[] {
     const todos: TodoItem[] = [];
 
     lines.forEach((line, index) => {
-        const todoRegex = /\/\/\s*(TODO)\(P?([1-3])\):\s*(.+)/;
-        const fixmeRegex = /\/\/\s*(FIXME):\s*(.+)/;
+        // Regex pour TODO avec priorité obligatoire
+        const todoRegex = /\/\/\s*TODO\(P?([1-3])\):\s*(.+)/;
+        // Regex pour FIXME sans priorité
+        const fixmeRegex = /\/\/\s*FIXME:\s*(.+)/;
         
-        let foundSequence = todoRegex.exec(line);
+        let todoMatch = todoRegex.exec(line);
         
-        if (foundSequence) {
-            const type = foundSequence[1].toUpperCase() as 'TODO' | 'FIXME';
-            const priority = parseInt(foundSequence[2]);
-            const text = foundSequence[3] || "";
+        if (todoMatch) {
+            const priority = parseInt(todoMatch[1]);
+            const text = todoMatch[2].trim();
             
             todos.push({
-                text, line:index, priority, type
+                text,
+                line: index,
+                priority,
+                type: 'TODO'
             });
         } else {
             // Vérifier si c'est un FIXME
-            foundSequence = fixmeRegex.exec(line);
-            if (foundSequence) {
-                const type = 'FIXME' as const;
-                const priority = 3; 
-                const text = foundSequence[2] || "";
+            let fixmeMatch = fixmeRegex.exec(line);
+            if (fixmeMatch) {
+                const text = fixmeMatch[1].trim();
                 
                 todos.push({
-                    text, line:index, priority, type
+                    text,
+                    line: index,
+                    priority: 3,
+                    type: 'FIXME'
                 });
             }
         }
     });
-   return todos.sort((todoa, todob) =>{
+
+    return todos.sort((todoa, todob) =>{
         if (todob.priority !== todoa.priority){
             return todob.priority - todoa.priority;
         }
@@ -216,3 +222,4 @@ class TodoTreeDataProvider implements vscode.TreeDataProvider<TodoTreeItem> {
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
